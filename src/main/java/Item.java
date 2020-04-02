@@ -14,4 +14,8 @@ public class Item {
     public float getValue(){
         return value;
     }
+
+    public boolean isArticle(){
+        return type.equals("Article");
+    }
 }

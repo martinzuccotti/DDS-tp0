@@ -1,35 +1,99 @@
-import java.util.Vector ;
+import java.util.ArrayList;
+import java.util.Optional;
 
 public class Operation {
-    Vector<Item> itemList;
-    String state;
-    float closeValue;
+    ArrayList<Item> itemList;
+    OperationState state;
 
-    Operation(String state){
-        itemList = new Vector<Item>();
-        this.state = state;
+    Operation(){
+        ArrayList<Item> itemList = new ArrayList<>();
+        state = new OpenedOperation(itemList);
+    }
+
+    public void addItem(Item i) throws Exception{
+        state.addItem(i);
+    }
+
+    public void deleteItem(Item i) throws Exception{
+        state.deleteItem(i);
+    }
+
+    public float getValue(){
+        return state.calculateValue();
+    }
+
+    public void close() throws Exception{
+        if(!state.canBeClosed()){
+            throw new Exception("The operation can not be closed");
+        }
+        float closeValue = state.calculateValue();
+        state = new ClosedOperation(closeValue);
+    }
+
+    public Optional<String> generateRefer(){
+        String ret = null;
+        if(allAreArticles()){
+            ret = "This is a refer";
+        }
+        return Optional.ofNullable(ret);
+    }
+
+    private boolean allAreArticles(){
+        return itemList.stream().allMatch(Item::isArticle);
+    }
+}
+
+interface OperationState{
+    float calculateValue();
+    void addItem(Item i) throws Exception;
+    void deleteItem(Item i) throws Exception;
+    boolean canBeClosed();
+}
+
+class OpenedOperation implements OperationState{
+    ArrayList<Item> itemList;
+
+    OpenedOperation(ArrayList<Item> itemList){
+        this.itemList = itemList;
     }
 
     public float calculateValue(){
-        if(state.equals("closed")){
-            return closeValue;
-        }
-        return 1;
+        return itemList.stream().map(Item::getValue).reduce(0.0f, Float::sum);
     }
 
-    public void close(){
-        closeValue = calculateValue();
-        state = "closed";
+    public void addItem(Item i){
+        itemList.add(i);
     }
 
+    public void deleteItem(Item i){
+        itemList.remove(i);
+    }
+
+    public boolean canBeClosed() {
+        return true;
+    }
 }
 
-interface State{
-    public float getValue(Vector<Item> ItemList);
-}
+class ClosedOperation implements OperationState{
+    float closeValue;
 
-public class ClosedOperation implements State{
-    public float getValue(Vector<Item> ItemList) {
-        return 0;
+    ClosedOperation(float closeValue){
+        this.closeValue = closeValue;
+    }
+
+    public float calculateValue(){
+        return closeValue;
+    }
+
+    public void addItem(Item i) throws Exception {
+        throw new Exception("A closed operation can not be modified");
+    }
+
+    public void deleteItem(Item i) throws Exception {
+        throw new Exception("A closed operation can not be modified");
+    }
+
+    public boolean canBeClosed() {
+        return false;
     }
 }
