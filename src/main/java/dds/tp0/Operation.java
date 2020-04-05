@@ -1,3 +1,5 @@
+package dds.tp0;
+
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -6,15 +8,15 @@ public class Operation {
     OperationState state;
 
     Operation(){
-        ArrayList<Item> itemList = new ArrayList<>();
+        itemList = new ArrayList<>();
         state = new OpenedOperation(itemList);
     }
 
-    public void addItem(Item i) throws Exception{
+    public void addItem(Item i) throws RuntimeException{
         state.addItem(i);
     }
 
-    public void deleteItem(Item i) throws Exception{
+    public void deleteItem(Item i) throws RuntimeException{
         state.deleteItem(i);
     }
 
@@ -22,9 +24,9 @@ public class Operation {
         return state.calculateValue();
     }
 
-    public void close() throws Exception{
+    public void close() throws RuntimeException{
         if(!state.canBeClosed()){
-            throw new Exception("The operation can not be closed");
+            throw new RuntimeException("The operation can not be closed");
         }
         float closeValue = state.calculateValue();
         state = new ClosedOperation(closeValue);
@@ -45,8 +47,8 @@ public class Operation {
 
 interface OperationState{
     float calculateValue();
-    void addItem(Item i) throws Exception;
-    void deleteItem(Item i) throws Exception;
+    void addItem(Item i) throws RuntimeException;
+    void deleteItem(Item i) throws RuntimeException;
     boolean canBeClosed();
 }
 
@@ -85,12 +87,12 @@ class ClosedOperation implements OperationState{
         return closeValue;
     }
 
-    public void addItem(Item i) throws Exception {
-        throw new Exception("A closed operation can not be modified");
+    public void addItem(Item i) throws RuntimeException {
+        throw new RuntimeException("A closed operation can not be modified");
     }
 
-    public void deleteItem(Item i) throws Exception {
-        throw new Exception("A closed operation can not be modified");
+    public void deleteItem(Item i) throws RuntimeException {
+        throw new RuntimeException("A closed operation can not be modified");
     }
 
     public boolean canBeClosed() {

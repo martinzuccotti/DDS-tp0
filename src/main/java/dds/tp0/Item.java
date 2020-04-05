@@ -1,3 +1,5 @@
+package dds.tp0;
+
 public class Item {
     String type;
     float value;
